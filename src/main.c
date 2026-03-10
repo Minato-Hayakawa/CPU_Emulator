@@ -1,8 +1,15 @@
 #include "instruction.h"
 
+uint8_t program[] = {
+    0x10, 0x05,  // LOADS: Reg[0] に 5 を入れる (10=命令, 05=データ)
+    0x11, 0x03,  // LOADS: Reg[1] に 3 を入れる (11=命令, 03=データ)
+    0x21,        // ADD: A (Reg0) に Reg[1] を足す (20 | 1 = 21)
+    0xFF         // HALT: 終了                // 0x1C: HALT             (終了)
+};
+
 int main() {
     CPU cpu = {0};
-    cpu.sp = 0xFFFF;  // スタックポインタの初期化
+    cpu.sp = 0xFFFF;
 
     // 1. memory_fft という名前で、メモリと同じサイズ (65536) の配列を作る
     // 括弧内で直接、実行したい命令（マシン語）を書いていきます。
@@ -25,21 +32,17 @@ int main() {
         0xFF  // HALT (終了)
     };
 
-    // 2. CPUが読み取れるように実際の「メモリ」にコピーする
     uint8_t memory[65536] = {0};
-    memcpy(memory, memory_fft, sizeof(memory_fft));
 
-    printf("--- Complex Calculation Start ---\n");
+    memcpy(memory, program, sizeof(program));
 
-    // 3. 実行ループ
+    printf("--- Execution Start ---\n");
+
     while (!cpu.is_halted && cpu.pc < sizeof(memory)) {
         uint8_t opcode = memory[cpu.pc];
-        decode_and_run(&cpu, opcode, memory);  // 命令の解釈と実行
+        decode_and_run(&cpu, opcode, memory);
     }
 
-    // 最後にメモリの中身（計算結果）を表示して確認
-    printf("Result (Real part at [0x0100]): %d\n", memory[0x0100]);
-    printf("Result (Imag part at [0x0101]): %d\n", memory[0x0101]);
-
+    printf("Final Result in Reg[0]: %d\n", cpu.registers[0]);
     return 0;
 }
