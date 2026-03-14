@@ -1,4 +1,4 @@
-#include "instruction.h"
+#include "C:/vscode/c/CPU_Emulator/include/instruction.h"
 
 void execute_cycle(CPU *cpu, uint8_t *memory) {
     // 1. Fetch: 命令の読み込み
@@ -24,16 +24,17 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
     uint16_t current_pc = cpu->pc;
 
     switch (type) {
-        // --- データ転送系 (0x10 ~ 0x14) ---
+ 
         case 0x10: // LOADS
+        {
             if (reg_idx < 4) { //レジスタの範囲をチェック
                 cpu->pc++;
                 cpu->registers[reg_idx] = memory[cpu->pc];
                 printf("MOV Reg[%d], %d\n", reg_idx, cpu->registers[reg_idx]);
                 cpu->pc++;
             }
-            break;
-        case 0x11: // MOV Reg[R], Reg[src] 
+            break;}
+        case 0x20: // MOV Reg[R], Reg[src] 
         {
             cpu->pc++;
             uint8_t src_idx = memory[cpu->pc];
@@ -43,7 +44,7 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
             cpu->pc++;
         }
         break;
-        case 0x12: // STORE Reg[R], [addr] (レジスタをメモリへ)
+        case 0x30: // STORE Reg[R], [addr] (レジスタをメモリへ)
         {
             cpu->pc++;
             // アドレスは2バイト(16bit)必要
@@ -52,7 +53,7 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
             memory[addr] = cpu->registers[reg_idx];
         }
         break;
-        case 0x13: // PUSH Reg[R]
+        case 0x40: // PUSH Reg[R]
         if (reg_idx < 4) {
             cpu->pc++;
             cpu->sp--; 
@@ -60,7 +61,7 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
             printf("PUSH Reg[%d] to 0x%04X\n", reg_idx, cpu->sp);
         }
         break;
-        case 0x14: // POP Reg[R]
+        case 0x50: // POP Reg[R]
         if (reg_idx < 4) {
             cpu->pc++;
             cpu->registers[reg_idx] = memory[cpu->sp];
@@ -69,18 +70,19 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
         }
         break;
     // --- 算術演算系 (0x20系) ---
-        case 0x20: // ADD A, Reg[R] (Aレジスタに他のレジスタを足す)
+        case 0x60: // ADD A, Reg[R] (Aレジスタに他のレジスタを足す)
         {
             if (reg_idx < 4) {
-                cpu->pc++;
+                
                 cpu->registers[0] += cpu->registers[reg_idx];
                 update_flags(cpu, cpu->registers[0]);
                 printf("ADD A, Reg[%d] (Result: %d)\n", reg_idx, cpu->registers[0]);
+                cpu->pc++;
             }
-        }
+       
         break;
-
-        case 0x21: // SUB A, Reg[R]
+         }
+        case 0x70: // SUB A, Reg[R]
         {
             if (reg_idx < 4) {
                 cpu->pc++;
@@ -89,7 +91,7 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
             }
         }
         break;
-        case 0x22: //MUL A, Reg[R]
+        case 0x80: //MUL A, Reg[R]
         {
             if (reg_idx < 4){
                 cpu->pc++;
@@ -98,7 +100,7 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
             }
         }
         break;
-        case 0x23: //DIV A, Reg[R]
+        case 0x90: //DIV A, Reg[R]
         {
             cpu->pc++;
             if (reg_idx < 4 && cpu->registers[reg_idx] != 0){
@@ -111,12 +113,12 @@ void decode_and_run(CPU *cpu, uint8_t opcode, uint8_t *memory) {
         break;
 
         // --- 制御系 (0x30系) ---
-        case 0x30: // JMP addr
+        case 0xA0: // JMP addr
             cpu->pc++;    
             cpu->pc = (memory[cpu->pc] << 8) | memory[cpu->pc + 1];
             return; 
 
-        case 0x40: // JZ addr
+        case 0xB0: // JZ addr
             cpu->pc++; 
             if (cpu->z_flag) {
                 cpu->pc = (memory[cpu->pc] << 8) | memory[cpu->pc + 1];

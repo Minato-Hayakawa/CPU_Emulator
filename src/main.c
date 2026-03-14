@@ -3,9 +3,18 @@
 uint8_t program[] = {
     0x10, 0x05,  // LOADS: Reg[0] に 5 を入れる (10=命令, 05=データ)
     0x11, 0x03,  // LOADS: Reg[1] に 3 を入れる (11=命令, 03=データ)
-    0x21,        // ADD: A (Reg0) に Reg[1] を足す (20 | 1 = 21)
+    0x61,        // ADD: A (Reg0) に Reg[1] を足す (20 | 1 = 21)
     0xFF         // HALT: 終了                // 0x1C: HALT             (終了)
 };
+
+uint8_t Fibonacci[] = {
+    0x10, 0x00,
+    0x11, 0x01,
+    0x12, 0x0A,
+    0x13, 0x03,
+    0x14, 
+
+}
 
 int main() {
     CPU cpu = {0};
