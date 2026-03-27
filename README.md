@@ -46,6 +46,7 @@ The core logic resides in `decode_and_run`. It efficiently dispatches instructio
 ```c
 uint8_t type = (opcode & 0xF0);
 uint8_t reg_idx = (opcode & 0x0F);
+```
 
 ### 2. Flag Management
 After arithmetic operations, the CPU state is updated via `update_flags`. This is critical for implementing loops and conditional logic:
